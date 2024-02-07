@@ -9,8 +9,10 @@ import axiosApi from '../axiosApi';
 export default function Home() {
   const [userUrl, setUserUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
+  const URL = 'http://localhost:8000/links/' + shortUrl;
 
   const shortenMutation = useMutation<shortUserUrl, Error, userUrl>({
+    mutationKey: 'links',
     mutationFn: async (data) => {
       const response = await axiosApi.post('/links', data);
       return response.data;
@@ -25,22 +27,23 @@ export default function Home() {
 
   const handleShortenUrl = async () => {
     try {
-      await shortenMutation.mutateAsync({originalUrl: userUrl})
+      await shortenMutation.mutateAsync({originalUrl: userUrl});
+      setUserUrl('');
     } catch (e) {
-      console.error('Error: ', e)
+      console.error('Error: ', e);
     }
-  }
-
+  };
 
   const shortUrlContainer: JSX.Element = (
-    <Grid>
-      <Link>{shortUrl}</Link>
+    <Grid sx={{display: shortUrl ? 'block': 'none', textAlign: "center"}}>
+      <Typography sx={{marginY: 2}} variant={'h6'}>Your link now looks like this:</Typography>
+      <Link href={URL} variant='children' underline="hover">{URL}</Link>
     </Grid>
-  )
+  );
 
   return (
     <main>
-      <Grid container spacing={2} sx={{flexDirection: 'column', marginTop: 5, textAlign: 'center'}}>
+      <Grid container spacing={2} sx={{flexDirection: 'column', marginY: 5, textAlign: 'center'}}>
         <Grid item xs={12} md={8}>
           <Typography variant="h4">Shorten your link!</Typography>
         </Grid>
@@ -54,7 +57,7 @@ export default function Home() {
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <Button type="submit" variant="contained" onClick={ handleShortenUrl }> Shorten!</Button>
+          <Button type="submit" variant="contained" onClick={handleShortenUrl}> Shorten!</Button>
         </Grid>
       </Grid>
       {shortUrlContainer}
